@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.*?>
+
+<Pane fx:id="Pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="75.0" prefWidth="330.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="journalmain.LogonContr">
+    <children>
+        <TextField fx:id="Login" focusTraversable="true" layoutX="60.0" layoutY="5.0" />
+        <PasswordField fx:id="Pass" focusTraversable="true" layoutX="60.0" layoutY="40.0" onKeyReleased="#EnterKey" />
+        <PasswordField fx:id="NewPass" focusTraversable="false" layoutX="115.0" layoutY="85.0" />
+        <PasswordField fx:id="CheckNewPass" focusTraversable="false" layoutX="115.0" layoutY="110.0" />
+        <Button fx:id="Enter" layoutX="250.0" layoutY="5.0" mnemonicParsing="false" onAction="#Enter" text="Войти">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Button>
+        <Button fx:id="ChangePass" layoutX="230.0" layoutY="40.0" mnemonicParsing="false" onAction="#ChangePass" text="Смена пароля" />
+        <Label layoutX="5.0" layoutY="8.0" prefHeight="20.0" prefWidth="48.0" text="Логин">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <Label layoutX="5.0" layoutY="42.0" text="Пароль">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <Label fx:id="JourLowLabel" layoutX="5.0" layoutY="65.0" prefHeight="20.0" prefWidth="345.0" textFill="#7d0007" />
+        <Label fx:id="NewPas" layoutX="5.0" layoutY="98.0" text="Новый пароль">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+        <Label layoutX="5.0" layoutY="114.0" text="Подтверждение">
+            <font>
+                <Font size="14.0" />
+            </font>
+        </Label>
+    </children>
+</Pane>
