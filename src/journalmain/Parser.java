@@ -37,7 +37,9 @@ public class Parser {
                         break;
 
                     case Cell.CELL_TYPE_FORMULA:
-                        result += "[" + cell.getNumericCellValue() + "]";
+                        result += "[" + cell.getNumericCellValue() + "]" +
+                                "" +
+                                "";
                         break;
                     default:
                         result += "|";
