@@ -1183,10 +1183,7 @@ public class MainContr implements Initializable {
         System.out.println("Массив типов анализов: "+RezAnaliz);
         String RezEmailText=EmailCreator.Create(RezAnaliz);
         RezAnaliz.clear();
-        System.out.println("Возврат класса E-Mail Creator: " +
-                "" +
-                "" +
-                ""+RezEmailText);
+        System.out.println("Возврат класса E-Mail Creator: "+RezEmailText);
 //        if (EMAIL.matches("^[a-zA-Zа-яА-ЯёЁ0-9-_].*@{1}.*[a-zA-Zа-яА-ЯёЁ0-9-_]$")){
 //            String SMTP_AUTH_USER = "results@alfamed-nsk.ru";
 //            String SMTP_AUTH_PWD = "VahVah123";
