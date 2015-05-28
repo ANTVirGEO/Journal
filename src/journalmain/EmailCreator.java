@@ -22,9 +22,7 @@ public class EmailCreator {
                 String SQL = "USE Journal \n" +
                         "SELECT FILE_NAME \n" +
                         "FROM RezTablesFiles \n" +
-                        "WHERE AT_LABEL='" + Anal + "' \n" +
-                        "" +
-                        "";
+                        "WHERE AT_LABEL='" + Anal + "' \n";
                 ResultSet res = null;
                 System.out.println("//////////Выборка имён файлов Шаблонов\\\\\\\\\\" + currenttime + "\n");
                 System.out.println(SQL);
