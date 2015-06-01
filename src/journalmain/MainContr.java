@@ -359,7 +359,7 @@ public class MainContr implements Initializable {
     public void JourButtonCheck(ActionEvent actionEvent) {
         JourLabelLow.setText(JourHTMLInput.getHtmlText());
         System.out.println(LogPas);
-        this.stage.close();
+        //this.stage.close();
     }
 
     public void JourComboDate(ActionEvent actionEvent) {
