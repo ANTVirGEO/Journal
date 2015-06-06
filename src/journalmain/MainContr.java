@@ -208,7 +208,7 @@ public class MainContr implements Initializable {
                                 String SQLUpdALL=("USE Journal \n" +
                                         "UPDATE PochRefreshStatus \n" +
                                         "SET Status=0 \n" +
-                                        "WHERE Login<>'VAH' ");
+                                        "WHERE Login<>'VAH'");
                                 System.out.println("///////////////////////////////////////////Обновление статусов всех пользователей в связи с тем, что все обновили основную таблицу, ввиду изменения информации\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\"+ currenttime);
                                 System.out.println(SQLUpdALL);
                                 StatUpdALL.executeUpdate(SQLUpdALL);
