@@ -101,6 +101,8 @@ public class MainContr implements Initializable {
     public TableView<PochData> PochTable;
     public TableView<RezPriemData> RezTablePriem;
     public TableView<RezAnalData> RezTableAnal;
+    public TableView<CalcServData> CalTableServ;
+    public TableView<CalcServAdvData> CalTableSum;
     public Button RezSend;
     public TextArea RezPochta;
     public Tab ResTab;
@@ -116,10 +118,8 @@ public class MainContr implements Initializable {
     public TextField CalTextName;
     public TextField CalTextPrice;
     public TextField CalTextType;
-    public TableView CalTableServ;
     public ComboBox CalComboCode;
     public ComboBox CalComboPrice;
-    public TableView CalTableSum;
     public int TabCount =1;
     private Stage stage;
     private String PochStatus = "Все письма";
@@ -147,7 +147,8 @@ public class MainContr implements Initializable {
     private int RezPriemPatientsID;
     private String EMAIL;
     private ArrayList<String> RezAnaliz= new ArrayList<>();
-
+    private String CalcComboCode="Начинается";
+    private String CalcComboPrice="=";
 
 
     public void setStage(Stage stage) {
@@ -167,6 +168,10 @@ public class MainContr implements Initializable {
                 (observable, oldValue, newValue) -> showRezPacData(newValue));
         RezTablePriem.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> showRezPriemData(newValue));
+        CalTableServ.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> CalcAddInSum(newValue));
+        CalTableSum.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> CalcDelFromSum(newValue));
 //Этот таймер при инициализации старует проверку почты раз в N минут. ЗЫ: останавливается при закрытии приложения
         timer = new java.util.Timer();
         timer.schedule(new TimerTask() {
@@ -310,6 +315,7 @@ public class MainContr implements Initializable {
             }
         }, 1000, 1000);
     }
+
     //Смена вкладки приводит к обнулению данных на вкладках, скрытию элементов и т.п.
     public void TabChanged(Event event) {
         TabCount++;
@@ -357,15 +363,7 @@ public class MainContr implements Initializable {
             }
             if (MainTabPane.getSelectionModel().getSelectedIndex()==4){
                 System.out.println("CALCULATION ACTIVATED, TabCount= " + TabCount+"\n");
-                CalLabelLow.setText("");
-                CalLabelLow.setTextFill(Color.BLACK);
-                CalSum.setText("");
-                CalCount.setText("");
-                CalTextType.setText("");
-                CalTextCode.setText("");
-                CalTextPrice.setText("");
-                CalTextPrice.setText("");
-
+                CalReset();
             }
             if (MainTabPane.getSelectionModel().getSelectedIndex()==5){
                 System.out.println("DOLGI ACTIVATED, TabCount= " + TabCount+"\n");
@@ -1234,9 +1232,86 @@ public class MainContr implements Initializable {
 
     /////////////////////////////////////////////////////////Отделение отправки результатов анализов на почту пациенту//////////////////////////////////////////////////////////////////
     public void CalcReset(ActionEvent actionEvent) {
-        ArrayList a = new ArrayList();
-        a.add("VAH");
-        a.add(5);
-        System.out.println(a);
+        CalReset();
     }
+
+    //Смена режима выбора кода для поиска услуги
+    public void CalComboCode(ActionEvent actionEvent) {
+        CalcComboCode = String.valueOf(CalComboCode.getValue());
+    }
+
+    //Смена режима выбора цены для поиска услуги
+    public void CalComboPrice(ActionEvent actionEvent) {
+        CalcComboPrice = String.valueOf(CalComboPrice.getValue());
+    }
+
+    //Обнуление всего
+    public void CalReset () {
+        CalSum.setText("");
+        CalCount.setText("");
+        CalTextType.setText("");
+        CalTextCode.setText("");
+        CalTextPrice.setText("");
+        CalTextPrice.setText("");
+        CalLabelLow.setText("Введите в верхние поля необходимые параметры поиска услуг.");
+        CalLabelLow.setTextFill(Color.BLACK);
+        ObservableList<CalcServData> DataClear = CalTableServ.getItems();
+        DataClear.setAll();
+        ObservableList<CalcServAdvData> DataClearAdv = CalTableSum.getItems();
+        DataClearAdv.setAll();
+
+        
+    }
+    
+    //Обновление услуг в зависимости от введенных символов (Наименование больше 3 символов, либо от кода\цены)
+    public void ActiveQuery(Event event) {
+        String connectionUrl = "jdbc:sqlserver://APP104;databaseName=Journal;user=Java;password=VahVah123";
+        try {
+            Connection con = DriverManager.getConnection(connectionUrl);
+            Statement StCalServ = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+            String SQLCalServ = "USE Medialog710 \n" +
+                    "select * from v_fm_servprice \n" +
+                    "WHERE CODE LIKE '%" + CalTextCode.getText() + "%' \n";
+            ResultSet ResCalServ = null;
+            System.out.println("//////////Выбор услуг по введённым параметрам\\\\\\\\\\" + currenttime + "\n");
+            System.out.println(SQLCalServ);
+            try {
+                ResCalServ = StCalServ.executeQuery(SQLCalServ);
+            } catch (SQLException sqle){
+                System.out.println("ALARM! Произошла ошибка в Базе Данных SQL! Код ошибки: "+sqle+"\n");
+            }
+            ObservableList<CalcServData> dataclear = CalTableServ.getItems();
+            dataclear.setAll();
+            if (ResCalServ != null) {
+                while (ResCalServ.next()) {
+                    ObservableList<CalcServData> data = CalTableServ.getItems();
+                    data.add(new CalcServData(ResCalServ.getString("CODE"), ResCalServ.getString("ServName"), ResCalServ.getInt("Price"),
+                            ResCalServ.getString("PriceName"),ResCalServ.getString("DATE_FROM")));
+                }
+                ResCalServ.close();
+            } else {
+                System.out.println("Программа не смогла найти услуги по введённым данным!\n");
+            }
+            StCalServ.close();
+            con.close();
+        } catch (SQLException ignored) {
+        }
+    }
+
+    //Добавление услуги в считаемую сумму
+    private void CalcAddInSum(CalcServData Serv) {
+        ObservableList<CalcServAdvData> CalcData = CalTableSum.getItems();
+        CalcData.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
+                Serv.getPriceType(), Serv.getPriceDate(),1,1));
+    }
+
+    //Удаление услуги из считаемой суммы
+    private void CalcDelFromSum(CalcServAdvData ServAdv) {
+        ObservableList<CalcServAdvData> CalcDataAdv = CalTableSum.getItems();
+        System.out.println(CalTableSum.getSelectionModel().getSelectedIndex());
+        System.out.println(CalcDataAdv.size());
+        CalcDataAdv.remove(0);
+    }
+
 }
