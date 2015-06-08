@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.collections.*?>
-<?import javafx.scene.shape.*?>
-<?import javafx.scene.web.*?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.*?>
@@ -13,7 +9,6 @@
 <?import javafx.scene.web.HTMLEditor?>
 <?import journalmain.*?>
 <?import java.lang.*?>
-
 <TabPane fx:id="MainTabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="journalmain.MainContr">
     <tabs>
         <Tab fx:id="JourTab" closable="false" disable="false" onSelectionChanged="#TabChanged" text="Журнал">
@@ -286,7 +281,7 @@
                 </AnchorPane>
             </content>
         </Tab>
-      <Tab fx:id="ResTab" closable="false" onSelectionChanged="#TabChanged" text="Отправка результатов анализов">
+        <Tab fx:id="ResTab" closable="false" onSelectionChanged="#TabChanged" text="Отправка результатов анализов">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
@@ -505,12 +500,118 @@
                </children></AnchorPane>
         </content>
       </Tab>
-      <Tab fx:id="PreCalculationTab" closable="false" disable="false" onSelectionChanged="#TabChanged" text="Прекалькуляция услуг">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-        </content>
-      </Tab>
-      <Tab fx:id="DolgTab" closable="false" disable="false" onSelectionChanged="#TabChanged" text="Долги">
+        <Tab fx:id="CalculationTab" closable="false" disable="false" onSelectionChanged="#TabChanged" text="Прекалькуляция услуг">
+            <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                    <children>
+                        <GridPane prefHeight="850.0" prefWidth="1200.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="110.0" minWidth="110.0" prefWidth="110.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="4000.0" minWidth="400.0" prefWidth="400.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" maxWidth="180.0" minWidth="180.0" prefWidth="180.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="25.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                                <RowConstraints minHeight="500.0" prefHeight="500.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="200.0" minHeight="200.0" prefHeight="200.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="50.0" minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="25.0" minHeight="25.0" prefHeight="25.0" vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <children>
+                                <Label fx:id="CalSum" text="SUM" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                    <font>
+                                        <Font name="Georgia Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <Label fx:id="CalLabelLow" prefHeight="15.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="5" />
+                                <Label fx:id="CalCount" text="COUNT" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                    <font>
+                                        <Font name="Georgia Bold" size="18.0" />
+                                    </font>
+                                </Label>
+                                <TextField fx:id="CalTextCode" prefHeight="25.0" prefWidth="50.0" promptText="Код услуги" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <TextField fx:id="CalTextName" promptText="Наименование услуги. Всегда ищется через &quot;содержит&quot;" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                <TextField fx:id="CalTextPrice" promptText="Цена за услугу" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                                <TextField fx:id="CalTextType" promptText="Введите или выберите тип цены" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+                                <TableView fx:id="CalTableServ" prefHeight="500.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="2">
+                                    <columns>
+                                        <TableColumn maxWidth="100.0" minWidth="80.0" text="Код" />
+                                        <TableColumn minWidth="300.0" prefWidth="500.0" text="Наименование" />
+                                        <TableColumn maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Цена" />
+                                        <TableColumn maxWidth="300.0" minWidth="150.0" prefWidth="150.0" text="Тип цены" />
+                                        <TableColumn maxWidth="80.0" minWidth="80.0" text="Дата цены" />
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
+                                    <placeholder>
+                                        <Label text="Услуг нет. Попробуйте другие параметры поиска" />
+                                    </placeholder>
+                                </TableView>
+                                <Button fx:id="CalButReset" mnemonicParsing="false" onAction="#CalcReset" text="Сбросить результаты" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                                    <font>
+                                        <Font name="Georgia" size="16.0" />
+                                    </font></Button>
+                                <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Количество= " GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                    <font>
+                                        <Font name="Georgia" size="18.0" />
+                                    </font>
+                                </Label>
+                                <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Сумма= " GridPane.columnIndex="7" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                    <font>
+                                        <Font name="Georgia" size="18.0" />
+                                    </font>
+                                </Label>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Тип цены" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM">
+                                    <font>
+                                        <Font name="Georgia Bold" size="16.0" />
+                                    </font></Label>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Цена" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM">
+                                    <font>
+                                        <Font name="Georgia Bold" size="16.0" />
+                                    </font></Label>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Наименование услуги" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM">
+                                    <font>
+                                        <Font name="Georgia Bold" size="16.0" />
+                                    </font></Label>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Код услуги" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM">
+                                    <font>
+                                        <Font name="Georgia Bold" size="16.0" />
+                                    </font></Label>
+                                <ComboBox fx:id="CalComboCode" prefHeight="25.0" prefWidth="110.0" promptText="содержит" GridPane.rowIndex="1" />
+                                <ComboBox fx:id="CalComboPrice" prefWidth="150.0" promptText="=" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                                <TableView fx:id="CalTableSum" prefHeight="200.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="3">
+                                    <columns>
+                                        <TableColumn prefWidth="75.0" text="Код" />
+                                        <TableColumn prefWidth="75.0" text="Наименование" />
+                                        <TableColumn prefWidth="75.0" text="Цена" />
+                                        <TableColumn prefWidth="75.0" text="Тип цены" />
+                                        <TableColumn prefWidth="75.0" text="Дата цены" />
+                                        <TableColumn prefWidth="75.0" text="Количество" />
+                                        <TableColumn prefWidth="75.0" text="Увеличить" />
+                                        <TableColumn prefWidth="75.0" text="Уменьшить" />
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
+                                    <placeholder>
+                                        <Label text="Не выбрано ни одной услуги. Нажмите на любой из найденной услуг, чтобы она добавилась сюда. Чтобы её отсюда убрать нужно нажать на неё, либо потсавить количество = 0" />
+                                    </placeholder>
+                                </TableView>
+                            </children>
+                        </GridPane>
+                    </children>
+                </AnchorPane>
+            </content>
+        </Tab>
+        <Tab fx:id="DolgTab" closable="false" disable="false" onSelectionChanged="#TabChanged" text="Долги">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
         </content>

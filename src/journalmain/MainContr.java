@@ -105,10 +105,22 @@ public class MainContr implements Initializable {
     public TextArea RezPochta;
     public Tab ResTab;
     public TabPane MainTabPane;
-    public int TabCount =1;
-    public Tab PreCalculationTab;
+    public Tab CalculationTab;
     public Tab DolgTab;
     public Label RezPochtaLabel;
+    public Label CalSum;
+    public Button CalButReset;
+    public Label CalLabelLow;
+    public Label CalCount;
+    public TextField CalTextCode;
+    public TextField CalTextName;
+    public TextField CalTextPrice;
+    public TextField CalTextType;
+    public TableView CalTableServ;
+    public ComboBox CalComboCode;
+    public ComboBox CalComboPrice;
+    public TableView CalTableSum;
+    public int TabCount =1;
     private Stage stage;
     private String PochStatus = "Все письма";
     private LocalTime currenttime = LocalTime.now();
@@ -345,6 +357,15 @@ public class MainContr implements Initializable {
             }
             if (MainTabPane.getSelectionModel().getSelectedIndex()==4){
                 System.out.println("CALCULATION ACTIVATED, TabCount= " + TabCount+"\n");
+                CalLabelLow.setText("");
+                CalLabelLow.setTextFill(Color.BLACK);
+                CalSum.setText("");
+                CalCount.setText("");
+                CalTextType.setText("");
+                CalTextCode.setText("");
+                CalTextPrice.setText("");
+                CalTextPrice.setText("");
+
             }
             if (MainTabPane.getSelectionModel().getSelectedIndex()==5){
                 System.out.println("DOLGI ACTIVATED, TabCount= " + TabCount+"\n");
@@ -1209,5 +1230,13 @@ public class MainContr implements Initializable {
 //            RezLabelLow.setText("НЕВЕРНЫЙ E-MAIL!!! Проверьте правильность введенного в МИС Медиалог почтового ящика пациента.");
 //            RezLabelLow.setTextFill(Color.RED);
 //        }
+    }
+
+    /////////////////////////////////////////////////////////Отделение отправки результатов анализов на почту пациенту//////////////////////////////////////////////////////////////////
+    public void CalcReset(ActionEvent actionEvent) {
+        ArrayList a = new ArrayList();
+        a.add("VAH");
+        a.add(5);
+        System.out.println(a);
     }
 }
