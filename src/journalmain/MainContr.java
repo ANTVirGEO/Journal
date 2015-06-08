@@ -149,6 +149,8 @@ public class MainContr implements Initializable {
     private ArrayList<String> RezAnaliz= new ArrayList<>();
     private String CalcComboCode="Начинается";
     private String CalcComboPrice="=";
+    private Integer CalcSumma =0;
+    private Integer CalcCount =0;
 
 
     public void setStage(Stage stage) {
@@ -1255,11 +1257,16 @@ public class MainContr implements Initializable {
         CalTextPrice.setText("");
         CalLabelLow.setText("Введите в верхние поля необходимые параметры поиска услуг.");
         CalLabelLow.setTextFill(Color.BLACK);
-        ObservableList<CalcServData> DataClear = CalTableServ.getItems();
-        DataClear.setAll();
-        ObservableList<CalcServAdvData> DataClearAdv = CalTableSum.getItems();
-        DataClearAdv.setAll();
-
+        try {
+            ObservableList<CalcServData> DataClear = CalTableServ.getItems();
+            DataClear.setAll();
+            ObservableList<CalcServAdvData> DataClearAdv = CalTableSum.getItems();
+            DataClearAdv.setAll();
+        } catch (Exception e){
+            System.out.println("Ошибка: "+e);
+        }
+        CalcSumma=0;
+        CalcCount=0;
         
     }
     
@@ -1299,19 +1306,19 @@ public class MainContr implements Initializable {
         }
     }
 
-    //Добавление услуги в считаемую сумму
+    //Добавление услуги в считаемую сумму для подсчета и динамического вывода
     private void CalcAddInSum(CalcServData Serv) {
         ObservableList<CalcServAdvData> CalcData = CalTableSum.getItems();
         CalcData.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
                 Serv.getPriceType(), Serv.getPriceDate(),1,1));
+        CalcSumma = CalcSumma + Serv.getPrice();
+        CalcCount ++;
+        CalSum.setText(String.valueOf(CalcSumma));
+        CalCount.setText(String.valueOf(CalcCount));
     }
 
     //Удаление услуги из считаемой суммы
     private void CalcDelFromSum(CalcServAdvData ServAdv) {
-        ObservableList<CalcServAdvData> CalcDataAdv = CalTableSum.getItems();
-        System.out.println(CalTableSum.getSelectionModel().getSelectedIndex());
-        System.out.println(CalcDataAdv.size());
-        CalcDataAdv.remove(0);
-    }
 
+    }
 }
