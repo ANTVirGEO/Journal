@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
+import jdk.nashorn.internal.objects.annotations.Where;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -117,7 +118,7 @@ public class MainContr implements Initializable {
     public TextField CalTextCode;
     public TextField CalTextName;
     public TextField CalTextPrice;
-    public TextField CalTextType;
+    public ComboBox CalComboType;
     public ComboBox CalComboCode;
     public ComboBox CalComboPrice;
     public int TabCount =1;
@@ -151,6 +152,7 @@ public class MainContr implements Initializable {
     private String CalcComboPrice="=";
     private Integer CalcSumma =0;
     private Integer CalcCount =0;
+
 
 
     public void setStage(Stage stage) {
@@ -1237,49 +1239,108 @@ public class MainContr implements Initializable {
         CalReset();
     }
 
-    //Смена режима выбора кода для поиска услуги
-    public void CalComboCode(ActionEvent actionEvent) {
-        CalcComboCode = String.valueOf(CalComboCode.getValue());
-    }
-
-    //Смена режима выбора цены для поиска услуги
-    public void CalComboPrice(ActionEvent actionEvent) {
-        CalcComboPrice = String.valueOf(CalComboPrice.getValue());
-    }
-
     //Обнуление всего
     public void CalReset () {
         CalSum.setText("");
         CalCount.setText("");
-        CalTextType.setText("");
         CalTextCode.setText("");
-        CalTextPrice.setText("");
+        CalTextName.setText("");
         CalTextPrice.setText("");
         CalLabelLow.setText("Введите в верхние поля необходимые параметры поиска услуг.");
         CalLabelLow.setTextFill(Color.BLACK);
-        try {
-            ObservableList<CalcServData> DataClear = CalTableServ.getItems();
-            DataClear.setAll();
-            ObservableList<CalcServAdvData> DataClearAdv = CalTableSum.getItems();
-            DataClearAdv.setAll();
-        } catch (Exception e){
-            System.out.println("Ошибка: "+e);
-        }
+        ObservableList<CalcServData> DataClear = CalTableServ.getItems();
+        DataClear.clear();
+        ObservableList<CalcServAdvData> DataClearAdv = CalTableSum.getItems();
+        DataClearAdv.clear();
         CalcSumma=0;
         CalcCount=0;
-        
+        String connectionUrl = "jdbc:sqlserver://APP104;databaseName=Journal;user=Java;password=VahVah123";
+        try {
+            Connection conCalc = DriverManager.getConnection(connectionUrl);
+            Statement StCalPriceType = conCalc.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+            String SQLCalPriceType = "USE Medialog710 \n" +
+                    "SELECT CODE FROM FM_PRICETYPE \n";
+            ResultSet ResCalPriceType = null;
+            System.out.println("//////////Выбор всех типов цен для вставки в комбобокс\\\\\\\\\\" + currenttime + "\n");
+            System.out.println(SQLCalPriceType);
+            try {
+                ResCalPriceType = StCalPriceType.executeQuery(SQLCalPriceType);
+            } catch (SQLException sqle){
+                System.out.println("ALARM! Произошла ошибка в Базе Данных SQL! Код ошибки: "+sqle+"\n");
+            }
+            if (ResCalPriceType != null) {
+                CalComboType.getItems().clear();
+                while (ResCalPriceType.next()) {
+                    CalComboType.getItems().add(ResCalPriceType.getString("CODE"));
+                }
+                CalComboType.getItems().add("Все");
+                CalComboType.setValue("Все");
+                ResCalPriceType.close();
+            } else {
+                System.out.println("Программа не смогла найти услуги по введённым данным!\n");
+            }
+            StCalPriceType.close();
+            conCalc.close();
+        } catch (SQLException ignored) {
+        }
+        System.out.println("Количество выбранных строк= "+CalTableServ.getItems().size());
+        CalTableServ.scrollTo(0);
     }
     
     //Обновление услуг в зависимости от введенных символов (Наименование больше 3 символов, либо от кода\цены)
     public void ActiveQuery(Event event) {
         String connectionUrl = "jdbc:sqlserver://APP104;databaseName=Journal;user=Java;password=VahVah123";
         try {
-            Connection con = DriverManager.getConnection(connectionUrl);
-            Statement StCalServ = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            Connection CalcServCon = DriverManager.getConnection(connectionUrl);
+            Statement StCalServ = CalcServCon.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            String CalcStatusCode;
+            String CalcStatusPrice;
+            String CalcStatusPriceType;
+            if(String.valueOf(CalComboType.getValue()).equals("Все")){
+                CalcStatusPriceType="";
+            } else {
+                CalcStatusPriceType="(PriceName='"+String.valueOf(CalComboType.getValue())+"') AND";
+            }
+            String CalcStatusName = "(ServName LIKE '%" + CalTextName.getText() +"%')";
+            String StatusWHERE;
+            CalcComboCode = String.valueOf(CalComboCode.getValue());
+            CalcComboPrice = String.valueOf(CalComboPrice.getValue());
+            switch (CalcComboCode){
+                default: CalcStatusCode="(CODE LIKE '" + CalTextCode.getText() + "%') AND";break;
+                case "Начинается": CalcStatusCode="(CODE LIKE '" + CalTextCode.getText() + "%') AND";break;
+                case "Содержит": CalcStatusCode="(CODE LIKE '%" + CalTextCode.getText() + "%') AND";break;
+                case "Оканчивается": CalcStatusCode="(CODE LIKE'%" + CalTextCode.getText() + "') AND";break;
+            }
+            System.out.println("Статус кода= "+CalcStatusCode);
+            switch (CalcComboPrice){
+                default: CalcStatusPrice="(PRICE=" + CalTextPrice.getText() + ") AND";break;
+                case "=": CalcStatusPrice="(PRICE=" + CalTextPrice.getText() + ") AND";break;
+                case ">": CalcStatusPrice="(PRICE>" + CalTextPrice.getText() + ") AND";break;
+                case "<": CalcStatusPrice="(PRICE<" + CalTextPrice.getText() + ") AND";break;
+            }
+            System.out.println("Статус цены= "+CalcStatusPrice);
+            if (CalTextCode.getText().equals("")) CalcStatusCode = "";
+            if (CalTextName.getText().equals("")) CalcStatusName = "";
+            if (CalTextPrice.getText().equals("")) CalcStatusPrice ="";
+
+            StatusWHERE = CalcStatusCode + CalcStatusPrice + CalcStatusPriceType + CalcStatusName;
+            System.out.println("Общий статус= "+StatusWHERE);
+            int x=1;
+            if (!StatusWHERE.equals("")) {
+                while (x==1){   //удаление лишних ЭНДов
+                    x=0;
+                    if (StatusWHERE.substring((StatusWHERE.length() - 3), (StatusWHERE.length())).equals("AND")){
+                        StatusWHERE = StatusWHERE.substring(0, StatusWHERE.length() - 3);
+                        x=1;
+                    }
+                }
+                StatusWHERE="WHERE "+StatusWHERE;
+            } else {}
 
             String SQLCalServ = "USE Medialog710 \n" +
                     "select * from v_fm_servprice \n" +
-                    "WHERE CODE LIKE '%" + CalTextCode.getText() + "%' \n";
+                    "" + StatusWHERE + " \n";
             ResultSet ResCalServ = null;
             System.out.println("//////////Выбор услуг по введённым параметрам\\\\\\\\\\" + currenttime + "\n");
             System.out.println(SQLCalServ);
@@ -1301,7 +1362,7 @@ public class MainContr implements Initializable {
                 System.out.println("Программа не смогла найти услуги по введённым данным!\n");
             }
             StCalServ.close();
-            con.close();
+            CalcServCon.close();
         } catch (SQLException ignored) {
         }
     }
