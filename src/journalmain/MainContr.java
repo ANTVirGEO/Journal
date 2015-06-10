@@ -1,9 +1,15 @@
 package journalmain;
 
 import javafx.application.Platform;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
@@ -13,6 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import jdk.nashorn.internal.objects.annotations.Where;
 
 import javax.mail.Message;
@@ -152,6 +159,7 @@ public class MainContr implements Initializable {
     private String CalcComboPrice="=";
     private Integer CalcSumma =0;
     private Integer CalcCount =0;
+    private ObjectProperty calcPlus= new SimpleObjectProperty ();
 
 
 
@@ -1226,8 +1234,8 @@ public class MainContr implements Initializable {
 //            message.addRecipient(Message.RecipientType.TO, new InternetAddress(EMAIL));
 //            message.setSentDate(new Date());
 //            transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
-//            RezLabelLow.setText("Письмо успешно отправлено!");
-//            RezLabelLow.setTextFill(Color.GREEN);
+            RezLabelLow.setText("Письмо успешно отправлено!");
+            RezLabelLow.setTextFill(Color.GREEN);
 //        } else {
 //            RezLabelLow.setText("НЕВЕРНЫЙ E-MAIL!!! Проверьте правильность введенного в МИС Медиалог почтового ящика пациента.");
 //            RezLabelLow.setTextFill(Color.RED);
@@ -1248,10 +1256,6 @@ public class MainContr implements Initializable {
         CalTextPrice.setText("");
         CalLabelLow.setText("Введите в верхние поля необходимые параметры поиска услуг.");
         CalLabelLow.setTextFill(Color.BLACK);
-        ObservableList<CalcServData> DataClear = CalTableServ.getItems();
-        DataClear.clear();
-        ObservableList<CalcServAdvData> DataClearAdv = CalTableSum.getItems();
-        DataClearAdv.clear();
         CalcSumma=0;
         CalcCount=0;
         String connectionUrl = "jdbc:sqlserver://APP104;databaseName=Journal;user=Java;password=VahVah123";
@@ -1285,11 +1289,21 @@ public class MainContr implements Initializable {
         } catch (SQLException ignored) {
         }
         System.out.println("Количество выбранных строк= "+CalTableServ.getItems().size());
-        CalTableServ.scrollTo(0);
+//            Platform.runLater(() -> {
+                System.out.println("CLEAR ALL THE TABLES ON START!!!");
+                ObservableList<CalcServData> DataClear = CalTableServ.getItems();
+                CalTableServ.getSelectionModel().clearSelection();
+                DataClear.setAll();
+                ObservableList<CalcServAdvData> DataClearAdv = CalTableSum.getItems();
+                CalTableSum.getSelectionModel().clearSelection();
+                DataClearAdv.setAll();
+//            });
+        ActiveQuery();
     }
     
     //Обновление услуг в зависимости от введенных символов (Наименование больше 3 символов, либо от кода\цены)
-    public void ActiveQuery(Event event) {
+    public void ActiveQuery() {
+//        Platform.runLater(() -> {
         String connectionUrl = "jdbc:sqlserver://APP104;databaseName=Journal;user=Java;password=VahVah123";
         try {
             Connection CalcServCon = DriverManager.getConnection(connectionUrl);
@@ -1312,20 +1326,16 @@ public class MainContr implements Initializable {
                 case "Содержит": CalcStatusCode="(CODE LIKE '%" + CalTextCode.getText() + "%') AND";break;
                 case "Оканчивается": CalcStatusCode="(CODE LIKE'%" + CalTextCode.getText() + "') AND";break;
             }
-            System.out.println("Статус кода= "+CalcStatusCode);
             switch (CalcComboPrice){
                 default: CalcStatusPrice="(PRICE=" + CalTextPrice.getText() + ") AND";break;
                 case "=": CalcStatusPrice="(PRICE=" + CalTextPrice.getText() + ") AND";break;
                 case ">": CalcStatusPrice="(PRICE>" + CalTextPrice.getText() + ") AND";break;
                 case "<": CalcStatusPrice="(PRICE<" + CalTextPrice.getText() + ") AND";break;
             }
-            System.out.println("Статус цены= "+CalcStatusPrice);
             if (CalTextCode.getText().equals("")) CalcStatusCode = "";
             if (CalTextName.getText().equals("")) CalcStatusName = "";
             if (CalTextPrice.getText().equals("")) CalcStatusPrice ="";
-
             StatusWHERE = CalcStatusCode + CalcStatusPrice + CalcStatusPriceType + CalcStatusName;
-            System.out.println("Общий статус= "+StatusWHERE);
             int x=1;
             if (!StatusWHERE.equals("")) {
                 while (x==1){   //удаление лишних ЭНДов
@@ -1337,7 +1347,6 @@ public class MainContr implements Initializable {
                 }
                 StatusWHERE="WHERE "+StatusWHERE;
             } else {}
-
             String SQLCalServ = "USE Medialog710 \n" +
                     "select * from v_fm_servprice \n" +
                     "" + StatusWHERE + " \n";
@@ -1346,17 +1355,20 @@ public class MainContr implements Initializable {
             System.out.println(SQLCalServ);
             try {
                 ResCalServ = StCalServ.executeQuery(SQLCalServ);
-            } catch (SQLException sqle){
-                System.out.println("ALARM! Произошла ошибка в Базе Данных SQL! Код ошибки: "+sqle+"\n");
+            } catch (SQLException sqle) {
+                System.out.println("ALARM! Произошла ошибка в Базе Данных SQL! Код ошибки: " + sqle + "\n");
             }
             ObservableList<CalcServData> dataclear = CalTableServ.getItems();
-            dataclear.setAll();
+            System.out.println("CLEAR ServTableView before adding new Servs!");
+            dataclear.clear();
             if (ResCalServ != null) {
                 while (ResCalServ.next()) {
                     ObservableList<CalcServData> data = CalTableServ.getItems();
                     data.add(new CalcServData(ResCalServ.getString("CODE"), ResCalServ.getString("ServName"), ResCalServ.getInt("Price"),
                             ResCalServ.getString("PriceName"),ResCalServ.getString("DATE_FROM")));
+
                 }
+                CalTableServ.scrollTo(0);
                 ResCalServ.close();
             } else {
                 System.out.println("Программа не смогла найти услуги по введённым данным!\n");
@@ -1365,21 +1377,49 @@ public class MainContr implements Initializable {
             CalcServCon.close();
         } catch (SQLException ignored) {
         }
+//        });
     }
+
 
     //Добавление услуги в считаемую сумму для подсчета и динамического вывода
     private void CalcAddInSum(CalcServData Serv) {
-        ObservableList<CalcServAdvData> CalcData = CalTableSum.getItems();
-        CalcData.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
-                Serv.getPriceType(), Serv.getPriceDate(),1,1));
-        CalcSumma = CalcSumma + Serv.getPrice();
-        CalcCount ++;
-        CalSum.setText(String.valueOf(CalcSumma));
-        CalCount.setText(String.valueOf(CalcCount));
+        Platform.runLater(() -> {
+            ObservableList<CalcServAdvData> CalcData = CalTableSum.getItems();
+            if(CalcData.size()>0){
+                for (int i = 0; i < CalcData.size(); i++) {
+                    System.out.println(CalcData.get(i).getCode());
+                    if (CalcData.get(i).getCode().equals(Serv.getCode())) {
+                        System.out.println("YEY");
+                    } else {
+                        CalcData.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
+                                1, 1, Serv.getPriceType(), Serv.getPriceDate()));
+                    }
+                }
+            } else{
+                CalcData.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
+                        1, 1, Serv.getPriceType(), Serv.getPriceDate()));
+            }
+
+            CalcSumma = CalcSumma + Serv.getPrice();
+            CalcCount++;
+            CalSum.setText(String.valueOf(CalcSumma));
+            CalCount.setText(String.valueOf(CalcCount));
+//            CalTableServ.getSelectionModel().clearSelection();
+        });
     }
 
-    //Удаление услуги из считаемой суммы
-    private void CalcDelFromSum(CalcServAdvData ServAdv) {
 
+                //Удаление услуги из считаемой суммы
+
+    private void CalcDelFromSum(CalcServAdvData ServAdv) {
+        Platform.runLater(()->{
+            CalcSumma=CalcSumma-ServAdv.getSumma();
+            CalcCount--;
+            CalSum.setText(String.valueOf(CalcSumma));
+            CalCount.setText(String.valueOf(CalcCount));
+            CalTableSum.getSelectionModel().clearSelection();
+            ObservableList<CalcServAdvData> CalcData = CalTableSum.getItems();
+            CalcData.remove(ServAdv);
+        });
     }
 }

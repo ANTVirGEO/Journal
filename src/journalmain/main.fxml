@@ -557,7 +557,7 @@
                                             </FormattedTableCellFactory>
                                         </cellFactory>
                                     </TableColumn>
-                                        <TableColumn maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Цена">
+                                        <TableColumn maxWidth="80.0" minWidth="80.0" text="Цена">
                                         <cellValueFactory><PropertyValueFactory property="Price" />
                                         </cellValueFactory>
                                         <cellFactory>
@@ -648,7 +648,7 @@
                                 </ComboBox>
                                 <TableView fx:id="CalTableSum" prefHeight="200.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="3">
                                     <columns>
-                                        <TableColumn prefWidth="75.0" text="Код">
+                                        <TableColumn maxWidth="100.0" minWidth="80.0" text="Код">
                                             <cellValueFactory><PropertyValueFactory property="Code" />
                                             </cellValueFactory>
                                             <cellFactory>
@@ -656,7 +656,7 @@
                                                 </FormattedTableCellFactory>
                                             </cellFactory>
                                         </TableColumn>
-                                        <TableColumn prefWidth="75.0" text="Наименование">
+                                        <TableColumn minWidth="200.0" prefWidth="500.0" text="Наименование">
                                             <cellValueFactory><PropertyValueFactory property="Name" />
                                             </cellValueFactory>
                                             <cellFactory>
@@ -664,7 +664,7 @@
                                                 </FormattedTableCellFactory>
                                             </cellFactory>
                                         </TableColumn>
-                                        <TableColumn prefWidth="75.0" text="Цена">
+                                        <TableColumn maxWidth="80.0" minWidth="80.0" text="Цена">
                                             <cellValueFactory><PropertyValueFactory property="Price" />
                                             </cellValueFactory>
                                             <cellFactory>
@@ -672,23 +672,7 @@
                                                 </FormattedTableCellFactory>
                                             </cellFactory>
                                         </TableColumn>
-                                        <TableColumn prefWidth="75.0" text="Тип цены">
-                                            <cellValueFactory><PropertyValueFactory property="PriceType" />
-                                            </cellValueFactory>
-                                            <cellFactory>
-                                                <FormattedTableCellFactory alignment="center">
-                                                </FormattedTableCellFactory>
-                                            </cellFactory>
-                                        </TableColumn>
-                                        <TableColumn prefWidth="75.0" text="Дата цены">
-                                            <cellValueFactory><PropertyValueFactory property="PriceDate" />
-                                            </cellValueFactory>
-                                            <cellFactory>
-                                                <FormattedTableCellFactory alignment="center">
-                                                </FormattedTableCellFactory>
-                                            </cellFactory>
-                                        </TableColumn>
-                                        <TableColumn prefWidth="75.0" text="Количество">
+                                        <TableColumn maxWidth="50.0" minWidth="50.0" text="Кол-во">
                                             <cellValueFactory><PropertyValueFactory property="Count" />
                                             </cellValueFactory>
                                             <cellFactory>
@@ -696,15 +680,23 @@
                                                 </FormattedTableCellFactory>
                                             </cellFactory>
                                         </TableColumn>
-                                        <TableColumn prefWidth="75.0" text="Увеличить">
-                                            <cellValueFactory><PropertyValueFactory property="PriceDate" />
+                                        <TableColumn maxWidth="150.0" minWidth="80.0" prefWidth="100.0" text="Сумма">
+                                            <cellValueFactory><PropertyValueFactory property="Summa" />
                                             </cellValueFactory>
                                             <cellFactory>
                                                 <FormattedTableCellFactory alignment="center">
                                                 </FormattedTableCellFactory>
                                             </cellFactory>
                                         </TableColumn>
-                                        <TableColumn prefWidth="75.0" text="Уменьшить">
+                                        <TableColumn maxWidth="300.0" minWidth="150.0" prefWidth="150.0" text="Тип цены">
+                                            <cellValueFactory><PropertyValueFactory property="PriceType" />
+                                            </cellValueFactory>
+                                            <cellFactory>
+                                                <FormattedTableCellFactory alignment="center">
+                                                </FormattedTableCellFactory>
+                                            </cellFactory>
+                                        </TableColumn>
+                                        <TableColumn maxWidth="80.0" minWidth="80.0" text="Дата цены" >
                                             <cellValueFactory><PropertyValueFactory property="PriceDate" />
                                             </cellValueFactory>
                                             <cellFactory>
@@ -720,7 +712,7 @@
                                         <Label text="Не выбрано ни одной услуги. Нажмите на любой из найденной услуг, чтобы она добавилась сюда. Чтобы её отсюда убрать нужно нажать на неё, либо потсавить количество = 0" />
                                     </placeholder>
                                 </TableView>
-                                <ComboBox fx:id="CalComboType" onAction="#ActiveQuery" editable="false" prefHeight="25.0" prefWidth="220.0" promptText="Касса" GridPane.columnIndex="7" GridPane.rowIndex="1">
+                                <ComboBox fx:id="CalComboType" editable="false" onHiding="#ActiveQuery" prefHeight="25.0" prefWidth="220.0" promptText="Касса" GridPane.columnIndex="7" GridPane.rowIndex="1">
 
                                 <tooltip>
                                     <Tooltip text="Выберите тип цены" />
