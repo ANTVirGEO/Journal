@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -180,7 +181,7 @@ public class MainContr implements Initializable {
                 (observable, oldValue, newValue) -> showRezPacData(newValue));
         RezTablePriem.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> showRezPriemData(newValue));
-        CalTableServ.getSelectionModel().selectedItemProperty().addListener(
+        CalTableServ.onMouseClickedProperty().addListener(
                 (observable, oldValue, newValue) -> CalcAddInSum(newValue));
         CalTableSum.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> CalcDelFromSum(newValue));
@@ -1382,44 +1383,97 @@ public class MainContr implements Initializable {
 
 
     //Добавление услуги в считаемую сумму для подсчета и динамического вывода
-    private void CalcAddInSum(CalcServData Serv) {
-        Platform.runLater(() -> {
-            ObservableList<CalcServAdvData> CalcData = CalTableSum.getItems();
-            if(CalcData.size()>0){
-                for (int i = 0; i < CalcData.size(); i++) {
-                    System.out.println(CalcData.get(i).getCode());
-                    if (CalcData.get(i).getCode().equals(Serv.getCode())) {
-                        System.out.println("YEY");
-                    } else {
-                        CalcData.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
-                                1, 1, Serv.getPriceType(), Serv.getPriceDate()));
-                    }
+    private void CalcAddInSum(EventHandler<? super MouseEvent> newValue) {
+        System.out.println(newValue);
+        CalTableServ.setRowFactory( tv -> {
+            TableRow<CalcServData> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+                    CalcServData rowData = row.getItem();
+                    System.out.println(rowData);
                 }
-            } else{
-                CalcData.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
-                        1, 1, Serv.getPriceType(), Serv.getPriceDate()));
-            }
-
-            CalcSumma = CalcSumma + Serv.getPrice();
-            CalcCount++;
-            CalSum.setText(String.valueOf(CalcSumma));
-            CalCount.setText(String.valueOf(CalcCount));
-//            CalTableServ.getSelectionModel().clearSelection();
+            });
+            System.out.println("Nothing happens!");
+            return row ;
         });
+
+
+
+//        Platform.runLater(() -> {
+//            ObservableList<CalcServAdvData> CalcDataSum = CalTableSum.getItems();
+//            boolean a = false;
+//            int b = 0;
+//            if(CalcDataSum.size()>0){
+//                for (int i = 0; i < CalcDataSum.size(); i++) {
+//                    System.out.println("Размер = "+CalcDataSum.size()+"\n Текущий i ="+i);
+//                    System.out.println("Код по i = "+CalcDataSum.get(i).getCode()+"\n");
+//                    if (CalcDataSum.get(i).getCode().equals(Serv.getCode())&CalcDataSum.get(i).getPriceType().equals(Serv.getPriceType())) {
+//                        a = true;
+//                        b=i;
+//                    } else {
+//                        a=(a ? true : false); //if (!a == true){a=true;}else{a=false;} :)
+//                    }
+//                }
+//            } else{
+//                a = false;
+//            }
+//            if (a==true){
+//                CalcDataSum.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
+//                        CalcDataSum.get(b).getCount()+1, (CalcDataSum.get(b).getCount()+1)*Serv.getPrice(), Serv.getPriceType(), Serv.getPriceDate()));
+//                CalcDataSum.remove(b);
+//                CalcSumma = CalcSumma + Serv.getPrice();
+//                CalcCount++;
+//                CalSum.setText(String.valueOf(CalcSumma));
+//                CalCount.setText(String.valueOf(CalcCount));
+//            } else {
+//                CalcDataSum.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(), 1, Serv.getPrice(), Serv.getPriceType(), Serv.getPriceDate()));
+//                CalcSumma = CalcSumma + Serv.getPrice();
+//                CalcCount++;
+//                CalSum.setText(String.valueOf(CalcSumma));
+//                CalCount.setText(String.valueOf(CalcCount));
+//            }
+////            CalTableServ.getSelectionModel().;
+//            CalTableSum.sort();
+//        });
     }
 
 
-                //Удаление услуги из считаемой суммы
 
+    //Удаление услуги из считаемой суммы
     private void CalcDelFromSum(CalcServAdvData ServAdv) {
         Platform.runLater(()->{
-            CalcSumma=CalcSumma-ServAdv.getSumma();
-            CalcCount--;
-            CalSum.setText(String.valueOf(CalcSumma));
-            CalCount.setText(String.valueOf(CalcCount));
-            CalTableSum.getSelectionModel().clearSelection();
-            ObservableList<CalcServAdvData> CalcData = CalTableSum.getItems();
-            CalcData.remove(ServAdv);
+            ObservableList<CalcServAdvData> CalcDataAdvSum = CalTableSum.getItems();
+            boolean a = false;
+            int b = 0;
+            if(CalcDataAdvSum.size()>0){
+                for (int i = 0; i < CalcDataAdvSum.size(); i++) {
+                    if (CalcDataAdvSum.get(i).getCode().equals(ServAdv.getCode())&CalcDataAdvSum.get(i).getPriceType().equals(ServAdv.getPriceType())&CalcDataAdvSum.get(i).getCount()>1) {
+                        a = true;
+                        b=i;
+                    } else {
+                        a=(a ? true : false);// if (!a == true){a=true;}else{a=false;}
+                    }
+                }
+            } else{
+                a = false;
+            }
+            if (a==true) {
+//                CalcDataAdvSum.add(new CalcServAdvData(ServAdv.getCode(), ServAdv.getName(), ServAdv.getPrice(),
+//                        CalcDataAdvSum.get(b).getCount() - 1, (CalcDataAdvSum.get(b).getCount() - 1) * ServAdv.getPrice(), ServAdv.getPriceType(), ServAdv.getPriceDate()));
+//                CalcDataAdvSum.remove(b);
+//                CalcSumma = CalcSumma - ServAdv.getSumma();
+//                CalcCount--;
+//                CalSum.setText(String.valueOf(CalcSumma));
+//                CalCount.setText(String.valueOf(CalcCount));
+//            CalTableSum.getSelectionModel().clearSelection();
+            }else {
+//                CalcDataAdvSum.remove(b);
+//                CalcSumma = CalcSumma - ServAdv.getSumma();
+//                CalcCount--;
+//                CalSum.setText(String.valueOf(CalcSumma));
+//                CalCount.setText(String.valueOf(CalcCount));
+            }
+            CalTableSum.sort();
         });
     }
 }
