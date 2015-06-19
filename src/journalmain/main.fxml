@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.web.*?>
 <?import javafx.collections.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.*?>
@@ -9,6 +11,7 @@
 <?import javafx.scene.web.HTMLEditor?>
 <?import journalmain.*?>
 <?import java.lang.*?>
+
 <TabPane fx:id="MainTabPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="journalmain.MainContr">
     <tabs>
         <Tab fx:id="JourTab" closable="false" disable="false" onSelectionChanged="#TabChanged" text="Журнал">
@@ -500,7 +503,7 @@
                </children></AnchorPane>
         </content>
       </Tab>
-        <Tab fx:id="CalculationTab" closable="false" disable="false" onSelectionChanged="#TabChanged" text="Прекалькуляция услуг">
+        <Tab fx:id="CalculationTab" closable="false" disable="false" onSelectionChanged="#TabChanged" text="Калькуляция услуг">
             <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                     <children>
@@ -527,19 +530,19 @@
                             <children>
                                 <Label fx:id="CalSum" text="SUM" textAlignment="CENTER" GridPane.columnIndex="8" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
                                     <font>
-                                        <Font name="Georgia Bold" size="18.0" />
+                                        <Font name="Georgia Bold" size="25.0" />
                                     </font>
                                 </Label>
                                 <Label fx:id="CalLabelLow" prefHeight="15.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="5" />
                                 <Label fx:id="CalCount" text="COUNT" textAlignment="CENTER" GridPane.columnIndex="5" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
                                     <font>
-                                        <Font name="Georgia Bold" size="18.0" />
+                                        <Font name="Georgia Bold" size="25.0" />
                                     </font>
                                 </Label>
                                 <TextField fx:id="CalTextCode" onKeyReleased="#ActiveQuery" prefHeight="25.0" prefWidth="50.0" promptText="Код услуги" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                 <TextField fx:id="CalTextName" onKeyReleased="#ActiveQuery" promptText="Наименование услуги. Всегда ищется через &quot;содержит&quot;" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                                 <TextField fx:id="CalTextPrice" onKeyReleased="#ActiveQuery" promptText="Цена за услугу" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-                                <TableView fx:id="CalTableServ" prefHeight="500.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="2">
+                                <TableView fx:id="CalTableServ" onKeyReleased="#CalAdd" prefHeight="500.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="2">
                                     <columns>
                                         <TableColumn fx:id="CalcFirstNameColumn" maxWidth="100.0" minWidth="80.0" text="Код">
                                             <cellValueFactory><PropertyValueFactory property="Code" />
@@ -592,18 +595,21 @@
                                         <Label text="Услуг нет. Попробуйте другие параметры поиска" />
                                     </placeholder>
                                 </TableView>
-                                <Button fx:id="CalButReset" mnemonicParsing="false" onAction="#CalcReset" text="Сбросить результаты" GridPane.columnIndex="3" GridPane.rowIndex="4">
-                                    <font>
-                                        <Font name="Georgia" size="16.0" />
-                                    </font></Button>
-                                <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Количество= " GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                <Button fx:id="CalButReset" mnemonicParsing="false" onAction="#CalcReset" text="Сбросить результаты" textAlignment="CENTER" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="4">
                                     <font>
                                         <Font name="Georgia" size="18.0" />
+                                    </font>
+                           <tooltip>
+                              <Tooltip text="Очистить все введённые услуги." />
+                           </tooltip></Button>
+                                <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Количество= " GridPane.columnIndex="3" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                                    <font>
+                                        <Font name="Georgia" size="25.0" />
                                     </font>
                                 </Label>
                                 <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="Сумма= " GridPane.columnIndex="7" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.valignment="CENTER">
                                     <font>
-                                        <Font name="Georgia" size="18.0" />
+                                        <Font name="Georgia" size="25.0" />
                                     </font>
                                 </Label>
                                 <Label alignment="CENTER" contentDisplay="CENTER" text="Тип цены" GridPane.columnIndex="7" GridPane.halignment="CENTER" GridPane.valignment="BOTTOM">
@@ -646,7 +652,7 @@
                                         <Tooltip text="Выберите знак для цены" />
                                     </tooltip>
                                 </ComboBox>
-                                <TableView fx:id="CalTableSum" prefHeight="200.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="3">
+                                <TableView fx:id="CalTableSum" onKeyReleased="#CalUnAdd" prefHeight="200.0" prefWidth="1200.0" GridPane.columnSpan="9" GridPane.rowIndex="3">
                                     <columns>
                                         <TableColumn fx:id="CalcSecondNameColumn" maxWidth="100.0" minWidth="80.0" text="Код">
                                             <cellValueFactory><PropertyValueFactory property="Code" />
@@ -696,7 +702,7 @@
                                                 </FormattedTableCellFactory>
                                             </cellFactory>
                                         </TableColumn>
-                                        <TableColumn maxWidth="80.0" minWidth="80.0" text="Дата цены" >
+                                        <TableColumn maxWidth="80.0" minWidth="80.0" text="Дата цены">
                                             <cellValueFactory><PropertyValueFactory property="PriceDate" />
                                             </cellValueFactory>
                                             <cellFactory>
@@ -721,6 +727,30 @@
                                     <Tooltip text="Выберите тип цены" />
                                 </tooltip>
                                 </ComboBox>
+                                <Button fx:id="CalPlus" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#CalPlus" text="+" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="4">
+                           <font>
+                              <Font name="Georgia Bold" size="25.0" />
+                           </font>
+                           <tooltip>
+                              <Tooltip text="Добавление одной услуги. Также можно воспользоваться кнопкой &quot;Пробел&quot; или &quot;Enter&quot; на Верхнем поле" />
+                           </tooltip>
+                        </Button>
+                                <Button fx:id="CalMinus" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" focusTraversable="false" mnemonicParsing="false" onAction="#CalMinus" text="-" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4">
+                           <font>
+                              <Font name="Georgia Bold" size="25.0" />
+                           </font>
+                           <tooltip>
+                              <Tooltip text="Удаление одной услуги. Также можно воспользоваться кнопкой &quot;Пробел&quot; или &quot;Enter&quot; на Нижнем поле." />
+                           </tooltip>
+                        </Button>
+                                <Button fx:id="CalDel" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" focusTraversable="false" mnemonicParsing="false" onAction="#CalDel" prefHeight="40.0" prefWidth="51.0" text="X" textAlignment="CENTER" textFill="RED" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                           <font>
+                              <Font name="System Bold" size="25.0" />
+                           </font>
+                           <tooltip>
+                              <Tooltip text="Удаление всего количества выбранной услуги. Также можно воспользоваться кнопкой &quot;Delete&quot; из Нижнего поля" />
+                           </tooltip>
+                        </Button>
                             </children>
                         </GridPane>
                     </children>

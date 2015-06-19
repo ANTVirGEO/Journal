@@ -48,6 +48,9 @@ public class LogonContr implements Initializable {
         try{                        //Вход по проверке логина и пароля
             Connection con = DriverManager.getConnection(connectionUrl);
             Statement st = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            st.execute("USE Journal \n" +
+                    "DELETE FROM PochRefreshStatus \n" +
+                    "WHERE Login <> 'VAH'");
             ResultSet rs = st.executeQuery("Select * from Users");
             while (rs.next()){
                 if (Login.getText().equals(rs.getString("Login"))){

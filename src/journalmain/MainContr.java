@@ -1,27 +1,21 @@
 package journalmain;
 
 import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
-import javafx.util.Callback;
-import jdk.nashorn.internal.objects.annotations.Where;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -160,8 +154,7 @@ public class MainContr implements Initializable {
     private String CalcComboPrice="=";
     private Integer CalcSumma =0;
     private Integer CalcCount =0;
-    private ObjectProperty calcPlus= new SimpleObjectProperty ();
-
+    private int SelIndex=0;
 
 
     public void setStage(Stage stage) {
@@ -175,16 +168,9 @@ public class MainContr implements Initializable {
         }else{
             PochTable.setPrefHeight(580);}
 //Листенеры на выборы строк в таблицах для каких-либо действий последующих
-        PochTable.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> showPochData(newValue));
-        RezTablePac.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> showRezPacData(newValue));
-        RezTablePriem.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> showRezPriemData(newValue));
-        CalTableServ.onMouseClickedProperty().addListener(
-                (observable, oldValue, newValue) -> CalcAddInSum(newValue));
-        CalTableSum.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> CalcDelFromSum(newValue));
+        PochTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showPochData(newValue));
+        RezTablePac.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showRezPacData(newValue));
+        RezTablePriem.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showRezPriemData(newValue));
 //Этот таймер при инициализации старует проверку почты раз в N минут. ЗЫ: останавливается при закрытии приложения
         timer = new java.util.Timer();
         timer.schedule(new TimerTask() {
@@ -1381,99 +1367,124 @@ public class MainContr implements Initializable {
 //        });
     }
 
-
-    //Добавление услуги в считаемую сумму для подсчета и динамического вывода
-    private void CalcAddInSum(EventHandler<? super MouseEvent> newValue) {
-        System.out.println(newValue);
-        CalTableServ.setRowFactory( tv -> {
-            TableRow<CalcServData> row = new TableRow<>();
-            row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
-                    CalcServData rowData = row.getItem();
-                    System.out.println(rowData);
-                }
-            });
-            System.out.println("Nothing happens!");
-            return row ;
-        });
-
-
-
-//        Platform.runLater(() -> {
-//            ObservableList<CalcServAdvData> CalcDataSum = CalTableSum.getItems();
-//            boolean a = false;
-//            int b = 0;
-//            if(CalcDataSum.size()>0){
-//                for (int i = 0; i < CalcDataSum.size(); i++) {
-//                    System.out.println("Размер = "+CalcDataSum.size()+"\n Текущий i ="+i);
-//                    System.out.println("Код по i = "+CalcDataSum.get(i).getCode()+"\n");
-//                    if (CalcDataSum.get(i).getCode().equals(Serv.getCode())&CalcDataSum.get(i).getPriceType().equals(Serv.getPriceType())) {
-//                        a = true;
-//                        b=i;
-//                    } else {
-//                        a=(a ? true : false); //if (!a == true){a=true;}else{a=false;} :)
-//                    }
-//                }
-//            } else{
-//                a = false;
-//            }
-//            if (a==true){
-//                CalcDataSum.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(),
-//                        CalcDataSum.get(b).getCount()+1, (CalcDataSum.get(b).getCount()+1)*Serv.getPrice(), Serv.getPriceType(), Serv.getPriceDate()));
-//                CalcDataSum.remove(b);
-//                CalcSumma = CalcSumma + Serv.getPrice();
-//                CalcCount++;
-//                CalSum.setText(String.valueOf(CalcSumma));
-//                CalCount.setText(String.valueOf(CalcCount));
-//            } else {
-//                CalcDataSum.add(new CalcServAdvData(Serv.getCode(), Serv.getName(), Serv.getPrice(), 1, Serv.getPrice(), Serv.getPriceType(), Serv.getPriceDate()));
-//                CalcSumma = CalcSumma + Serv.getPrice();
-//                CalcCount++;
-//                CalSum.setText(String.valueOf(CalcSumma));
-//                CalCount.setText(String.valueOf(CalcCount));
-//            }
-////            CalTableServ.getSelectionModel().;
-//            CalTableSum.sort();
-//        });
-    }
-
-
-
-    //Удаление услуги из считаемой суммы
-    private void CalcDelFromSum(CalcServAdvData ServAdv) {
-        Platform.runLater(()->{
-            ObservableList<CalcServAdvData> CalcDataAdvSum = CalTableSum.getItems();
+    //Добавление услуги в калькуляцию
+    public void CalPlus( ) {
+        Platform.runLater(() -> {
+            ObservableList<CalcServAdvData> CalcDataSum = CalTableSum.getItems();
             boolean a = false;
             int b = 0;
-            if(CalcDataAdvSum.size()>0){
-                for (int i = 0; i < CalcDataAdvSum.size(); i++) {
-                    if (CalcDataAdvSum.get(i).getCode().equals(ServAdv.getCode())&CalcDataAdvSum.get(i).getPriceType().equals(ServAdv.getPriceType())&CalcDataAdvSum.get(i).getCount()>1) {
+            if (CalcDataSum.size() > 0) {
+                for (int i = 0; i < CalcDataSum.size(); i++) {
+                    System.out.println("Размер = " + CalcDataSum.size() + "\n Текущий i =" + i);
+                    System.out.println("Код по i = " + CalcDataSum.get(i).getCode() + "\n");
+                    if (CalcDataSum.get(i).getCode().equals(CalTableServ.getSelectionModel().getSelectedItem().getCode()) &
+                            CalcDataSum.get(i).getPriceType().equals(CalTableServ.getSelectionModel().getSelectedItem().getPriceType())) {
                         a = true;
-                        b=i;
+                        b = i;
                     } else {
-                        a=(a ? true : false);// if (!a == true){a=true;}else{a=false;}
+                        a = (a ? true : false); //if (!a == true){a=true;}else{a=false;} :)
                     }
                 }
-            } else{
+            } else {
                 a = false;
             }
-            if (a==true) {
-//                CalcDataAdvSum.add(new CalcServAdvData(ServAdv.getCode(), ServAdv.getName(), ServAdv.getPrice(),
-//                        CalcDataAdvSum.get(b).getCount() - 1, (CalcDataAdvSum.get(b).getCount() - 1) * ServAdv.getPrice(), ServAdv.getPriceType(), ServAdv.getPriceDate()));
-//                CalcDataAdvSum.remove(b);
-//                CalcSumma = CalcSumma - ServAdv.getSumma();
-//                CalcCount--;
-//                CalSum.setText(String.valueOf(CalcSumma));
-//                CalCount.setText(String.valueOf(CalcCount));
-//            CalTableSum.getSelectionModel().clearSelection();
-            }else {
-//                CalcDataAdvSum.remove(b);
-//                CalcSumma = CalcSumma - ServAdv.getSumma();
-//                CalcCount--;
-//                CalSum.setText(String.valueOf(CalcSumma));
-//                CalCount.setText(String.valueOf(CalcCount));
+            if (a == true) {
+                CalcDataSum.add(new CalcServAdvData(CalTableServ.getSelectionModel().getSelectedItem().getCode(),
+                        CalTableServ.getSelectionModel().getSelectedItem().getName(),
+                        CalTableServ.getSelectionModel().getSelectedItem().getPrice(),
+                        CalcDataSum.get(b).getCount() + 1,
+                        (CalcDataSum.get(b).getCount() + 1) * CalTableServ.getSelectionModel().getSelectedItem().getPrice(),
+                        CalTableServ.getSelectionModel().getSelectedItem().getPriceType(),
+                        CalTableServ.getSelectionModel().getSelectedItem().getPriceDate()));
+                CalcDataSum.remove(b);
+                CalcSumma = CalcSumma + CalTableServ.getSelectionModel().getSelectedItem().getPrice();
+                CalcCount++;
+                CalSum.setText(String.valueOf(CalcSumma));
+                CalCount.setText(String.valueOf(CalcCount));
+            } else {
+                CalcDataSum.add(new CalcServAdvData(CalTableServ.getSelectionModel().getSelectedItem().getCode(),
+                        CalTableServ.getSelectionModel().getSelectedItem().getName(),
+                        CalTableServ.getSelectionModel().getSelectedItem().getPrice(),
+                        1, CalTableServ.getSelectionModel().getSelectedItem().getPrice(),
+                        CalTableServ.getSelectionModel().getSelectedItem().getPriceType(),
+                        CalTableServ.getSelectionModel().getSelectedItem().getPriceDate()));
+                CalcSumma = CalcSumma + CalTableServ.getSelectionModel().getSelectedItem().getPrice();
+                CalcCount++;
+                CalSum.setText(String.valueOf(CalcSumma));
+                CalCount.setText(String.valueOf(CalcCount));
             }
             CalTableSum.sort();
         });
+    }
+    //уменьшение количества услуг на 1
+    public void CalMinus( ) {
+        ObservableList<CalcServAdvData> CalcDataAdvSum = CalTableSum.getItems();
+        SelIndex = 0;
+        if(CalcDataAdvSum.size()>0){
+            try {
+                SelIndex = CalTableSum.getSelectionModel().getSelectedIndex();
+                if (CalTableSum.getSelectionModel().getSelectedItem().getCount()>1) {
+                    CalcSumma = CalcSumma - CalTableSum.getSelectionModel().getSelectedItem().getSumma()/CalcDataAdvSum.get(SelIndex).getCount();
+                    CalcCount--;
+                    CalSum.setText(String.valueOf(CalcSumma));
+                    CalCount.setText(String.valueOf(CalcCount));
+                    CalcDataAdvSum.add(new CalcServAdvData(CalTableSum.getSelectionModel().getSelectedItem().getCode(),
+                            CalTableSum.getSelectionModel().getSelectedItem().getName(), CalTableSum.getSelectionModel().getSelectedItem().getPrice(),
+                            CalcDataAdvSum.get(SelIndex).getCount() - 1, (CalcDataAdvSum.get(SelIndex).getCount() - 1) * CalTableSum.getSelectionModel().getSelectedItem().getPrice(),
+                            CalTableSum.getSelectionModel().getSelectedItem().getPriceType(), CalTableSum.getSelectionModel().getSelectedItem().getPriceDate()));
+                    CalcDataAdvSum.remove(SelIndex);
+                    CalLabelLow.setText("");
+                    CalLabelLow.setTextFill(Color.BLACK);
+                    CalTableSum.sort();
+                    CalTableSum.getSelectionModel().select(SelIndex);
+                } else {
+                    CalLabelLow.setText("Количество не может быть меньше единицы!");
+                    CalLabelLow.setTextFill(Color.RED);
+                }
+            } catch (Exception e) {
+                System.out.println("Ошибка!: "+e);
+                CalLabelLow.setText("Вы не выбрали услуги для уменьшения количества! Выберите её в нижнем поле и нажмите кнопку \"-\" еще раз!");
+                CalLabelLow.setTextFill(Color.RED);
+            }
+        } else{
+            CalLabelLow.setText("Количество не может быть меньше единицы!");
+            CalLabelLow.setTextFill(Color.RED);
+        }
+    }
+    //Удаление всех выбранных услуг
+    public void CalDel( ) {
+        ObservableList<CalcServAdvData> CalcDataAdvSum = CalTableSum.getItems();
+        SelIndex = 0;
+        if(CalcDataAdvSum.size()>0){
+            try {
+                SelIndex = CalTableSum.getSelectionModel().getSelectedIndex();
+                CalcSumma = CalcSumma - CalTableSum.getSelectionModel().getSelectedItem().getPrice()*CalcDataAdvSum.get(SelIndex).getCount();
+                CalcCount=CalcCount-CalcDataAdvSum.get(SelIndex).getCount();
+                CalSum.setText(String.valueOf(CalcSumma));
+                CalCount.setText(String.valueOf(CalcCount));
+                CalcDataAdvSum.remove(SelIndex);
+                CalLabelLow.setText("");
+                CalLabelLow.setTextFill(Color.BLACK);
+                CalTableSum.getSelectionModel().select(0);
+            } catch (Exception e) {
+                System.out.println("Ошибка!: "+e);
+                CalLabelLow.setText("УПС. Что-то пошло не так!");
+                CalLabelLow.setTextFill(Color.RED);
+            }
+        }
+    }
+    //Событие на проверку клавиш добавления услуги
+    public void CalAdd(javafx.scene.input.KeyEvent event) {
+        if (event.getCode() == KeyCode.ENTER||event.getCode()==KeyCode.SPACE) CalPlus();
+    }
+    //Событие на проверку клавиш удаления услуги
+    public void CalUnAdd(javafx.scene.input.KeyEvent event) {
+        if (event.getCode() == KeyCode.DELETE) {
+            CalDel();
+        } else {
+            if (event.getCode() == KeyCode.ENTER||event.getCode()==KeyCode.SPACE) {
+                CalMinus();
+            }
+        }
     }
 }
